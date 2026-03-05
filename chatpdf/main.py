@@ -14,7 +14,8 @@ import streamlit as st
 from io import StringIO
 import tempfile
 from lloa_rest_llm import WiseChatModel
-from langchain_community.embeddings import HuggingFaceBgeEmbeddings
+
+# from langchain_community.embeddings import HuggingFaceBgeEmbeddings
 from streamlit_extras.buy_me_a_coffee import button as coffee_button
 
 
@@ -162,14 +163,14 @@ uploaded_file = st.file_uploader("📂 PDF 파일을 업로드하세요", type=[
 
 # Buy Me A Coffee 버튼
 coffee_button(
-    username="dwryu",
+    username="rdw8304",
     text="Buy Me A Coffee",
     emoji="☕",
     font="Cookie",
     bg_color="#FF813F",
     font_color="#FFFFFF",
     coffee_color="#FFFFFF",
-    width=220
+    width=220,
 )
 
 if uploaded_file is not None:
