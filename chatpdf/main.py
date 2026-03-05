@@ -162,11 +162,14 @@ uploaded_file = st.file_uploader("📂 PDF 파일을 업로드하세요", type=[
 
 # Buy Me A Coffee 버튼
 coffee_button(
-    label="Buy Me A Coffee",
-    url="https://www.buymeacoffee.com/dwryu",
+    username="dwryu",
+    text="Buy Me A Coffee",
     emoji="☕",
     font="Cookie",
-    colors={"button": "#FF813F", "emoji": "#FFFFFF", "font": "#FFFFFF"},
+    bg_color="#FF813F",
+    font_color="#FFFFFF",
+    coffee_color="#FFFFFF",
+    width=220
 )
 
 if uploaded_file is not None:
