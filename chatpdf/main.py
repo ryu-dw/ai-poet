@@ -14,6 +14,8 @@ import streamlit as st
 from io import StringIO
 import tempfile
 from lloa_rest_llm import WiseChatModel
+from langchain_community.embeddings import HuggingFaceBgeEmbeddings
+
 
 # -----------------------------
 # 1. 기본 UI
@@ -23,6 +25,7 @@ st.title("ChatPDF")
 st.write("---")
 
 open_api_key = st.text_input("🔑 OpenAI API Key를 입력하세요", type="password")
+
 
 # -----------------------------
 # 2. LLM (전역 생성)
@@ -37,9 +40,10 @@ def load_llm():
     )
 
 
-#load_dotenv()
-#llm = load_llm()
+# load_dotenv()
+# llm = load_llm()
 llm = ChatOpenAI(model="gpt-3.5-turbo", api_key=open_api_key, temperature=0.0)
+
 
 # -----------------------------
 # 3. PDF → Retriever 생성
@@ -60,7 +64,18 @@ def build_retriever(uploaded_file):
 
     texts = text_splitter.split_documents(pages)
 
-    embeddings = OpenAIEmbeddings(model="text-embedding-3-large", api_key=open_api_key, dimensions=1024)
+    model_name = "BAAI/bge-small-en-v1.5"
+    model_kwargs = {"device": "cpu"}
+    encode_kwargs = {"normalize_embeddings": True}
+
+    embeddings = HuggingFaceBgeEmbeddings(
+        model_name=model_name,
+        model_kwargs=model_kwargs,
+        encode_kwargs=encode_kwargs
+    )
+    # embeddings = OpenAIEmbeddings(
+    #     model="text-embedding-3-large", api_key=open_api_key, dimensions=1024
+    # )
 
     vectorstore = Chroma.from_documents(texts, embeddings, collection_name="chatpdf")
 
