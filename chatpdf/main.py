@@ -15,6 +15,7 @@ from io import StringIO
 import tempfile
 from lloa_rest_llm import WiseChatModel
 from langchain_community.embeddings import HuggingFaceBgeEmbeddings
+from streamlit_extras.buy_me_a_coffee import button as coffee_button
 
 
 # -----------------------------
@@ -68,14 +69,14 @@ def build_retriever(uploaded_file):
     model_kwargs = {"device": "cpu"}
     encode_kwargs = {"normalize_embeddings": True}
 
-    embeddings = HuggingFaceBgeEmbeddings(
-        model_name=model_name,
-        model_kwargs=model_kwargs,
-        encode_kwargs=encode_kwargs
-    )
-    # embeddings = OpenAIEmbeddings(
-    #     model="text-embedding-3-large", api_key=open_api_key, dimensions=1024
+    # embeddings = HuggingFaceBgeEmbeddings(
+    #     model_name=model_name,
+    #     model_kwargs=model_kwargs,
+    #     encode_kwargs=encode_kwargs
     # )
+    embeddings = OpenAIEmbeddings(
+        model="text-embedding-3-large", api_key=open_api_key, dimensions=1024
+    )
 
     vectorstore = Chroma.from_documents(texts, embeddings, collection_name="chatpdf")
 
@@ -158,6 +159,15 @@ def ask(question: str, retriever):
 # 7. Streamlit 실행 영역
 # -----------------------------
 uploaded_file = st.file_uploader("📂 PDF 파일을 업로드하세요", type=["pdf"])
+
+# Buy Me A Coffee 버튼
+coffee_button(
+    label="Buy Me A Coffee",
+    url="https://www.buymeacoffee.com/dwryu",
+    emoji="☕",
+    font="Cookie",
+    colors={"button": "#FF813F", "emoji": "#FFFFFF", "font": "#FFFFFF"},
+)
 
 if uploaded_file is not None:
 
