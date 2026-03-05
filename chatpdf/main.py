@@ -22,6 +22,7 @@ st.set_page_config(page_title="ChatPDF", layout="wide")
 st.title("ChatPDF")
 st.write("---")
 
+open_api_key = st.text_input("🔑 OpenAI API Key를 입력하세요", type="password")
 
 # -----------------------------
 # 2. LLM (전역 생성)
@@ -36,9 +37,9 @@ def load_llm():
     )
 
 
-load_dotenv()
+#load_dotenv()
 #llm = load_llm()
-llm = ChatOpenAI(model="gpt-3.5-turbo", temperature=0.0)
+llm = ChatOpenAI(model="gpt-3.5-turbo", api_key=open_api_key, temperature=0.0)
 
 # -----------------------------
 # 3. PDF → Retriever 생성
@@ -59,7 +60,7 @@ def build_retriever(uploaded_file):
 
     texts = text_splitter.split_documents(pages)
 
-    embeddings = OpenAIEmbeddings(model="text-embedding-3-large", dimensions=1024)
+    embeddings = OpenAIEmbeddings(model="text-embedding-3-large", api_key=open_api_key, dimensions=1024)
 
     vectorstore = Chroma.from_documents(texts, embeddings, collection_name="chatpdf")
 
