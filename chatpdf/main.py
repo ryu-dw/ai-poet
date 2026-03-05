@@ -2,7 +2,7 @@ import os
 from pydoc import text
 from langchain_chroma import Chroma
 from langchain_community.document_loaders import PyPDFLoader
-from langchain_openai import OpenAIEmbeddings
+from langchain_openai import ChatOpenAI, OpenAIEmbeddings
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.output_parsers import StrOutputParser
@@ -37,8 +37,8 @@ def load_llm():
 
 
 load_dotenv()
-llm = load_llm()
-
+#llm = load_llm()
+llm = ChatOpenAI(model="gpt-3.5-turbo", temperature=0.0)
 
 # -----------------------------
 # 3. PDF → Retriever 생성
