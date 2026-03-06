@@ -139,10 +139,8 @@ class StreamHandler(BaseCallbackHandler):
         self.text += token
         self.container.markdown(self.text + "▌")  # 커서 효과
 
-chat_box = st.empty()
-stream_handler = StreamHandler(chat_box)
 
-generate_llm = ChatOpenAI(model="gpt-3.5-turbo", api_key=open_api_key, streaming=True, callbacks=[stream_handler], temperature=0.0)
+
 
 # -----------------------------
 # 7. 최종 QA 체인
@@ -159,13 +157,13 @@ answer_prompt = ChatPromptTemplate.from_template(
 """
 )
 
-answer_chain = answer_prompt | generate_llm | StrOutputParser()
-
-def ask(question: str, retriever):
+def ask(question: str, retriever, generate_llm) -> str  :
 
     docs = multi_query_retrieve(question, retriever)
     context = "\n\n".join([d.page_content for d in docs])
 
+    answer_chain = answer_prompt | generate_llm | StrOutputParser()
+    
     response = answer_chain.invoke({"context": context, "question": question})
 
     return response
@@ -200,8 +198,12 @@ if uploaded_file is not None:
 
     if question:
         with st.spinner("답변 생성 중..."):
+            chat_box = st.empty()
+            stream_handler = StreamHandler(chat_box)
 
-            answer = ask(question, retriever)
+            generate_llm = ChatOpenAI(model="gpt-3.5-turbo", api_key=open_api_key, streaming=True, callbacks=[stream_handler], temperature=0.0)
+
+            answer = ask(question, retriever, generate_llm)
 
         # st.write("### 📌 답변")
         # st.write(answer)
