@@ -142,7 +142,7 @@ class StreamHandler(BaseCallbackHandler):
 chat_box = st.empty()
 stream_handler = StreamHandler(chat_box)
 
-generate_llm = ChatOpenAI(model="gpt-3.5-turbo", api_key=open_api_key, streaming=True, callback=[stream_handler], temperature=0.0)
+generate_llm = ChatOpenAI(model="gpt-3.5-turbo", api_key=open_api_key, streaming=True, callbacks=[stream_handler], temperature=0.0)
 
 # -----------------------------
 # 7. 최종 QA 체인
