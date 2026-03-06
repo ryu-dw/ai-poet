@@ -14,6 +14,7 @@ import streamlit as st
 from io import StringIO
 import tempfile
 from lloa_rest_llm import WiseChatModel
+from langchain_core.callbacks import BaseCallbackHandler
 
 # from langchain_community.embeddings import HuggingFaceBgeEmbeddings
 from streamlit_extras.buy_me_a_coffee import button as coffee_button
@@ -27,7 +28,6 @@ st.title("ChatPDF")
 st.write("---")
 
 open_api_key = st.text_input("🔑 OpenAI API Key를 입력하세요", type="password")
-
 
 # -----------------------------
 # 2. LLM (전역 생성)
@@ -45,7 +45,6 @@ def load_llm():
 # load_dotenv()
 # llm = load_llm()
 llm = ChatOpenAI(model="gpt-3.5-turbo", api_key=open_api_key, temperature=0.0)
-
 
 # -----------------------------
 # 3. PDF → Retriever 생성
@@ -129,7 +128,24 @@ def multi_query_retrieve(question: str, retriever) -> List[Document]:
 
 
 # -----------------------------
-# 6. 최종 QA 체인
+# 6. Streaming Callback
+# -----------------------------
+class StreamHandler(BaseCallbackHandler):
+    def __init__(self, container, initial_text=""):
+        self.container = container
+        self.text = initial_text
+
+    def on_llm_new_token(self, token: str, **kwargs):
+        self.text += token
+        self.container.markdown(self.text + "▌")  # 커서 효과
+
+chat_box = st.empty()
+stream_handler = StreamHandler(chat_box)
+
+generate_llm = ChatOpenAI(model="gpt-3.5-turbo", api_key=open_api_key, streaming=True, callback=[stream_handler], temperature=0.0)
+
+# -----------------------------
+# 7. 최종 QA 체인
 # -----------------------------
 answer_prompt = ChatPromptTemplate.from_template(
     """
@@ -143,8 +159,7 @@ answer_prompt = ChatPromptTemplate.from_template(
 """
 )
 
-answer_chain = answer_prompt | llm | StrOutputParser()
-
+answer_chain = answer_prompt | generate_llm | StrOutputParser()
 
 def ask(question: str, retriever):
 
@@ -155,13 +170,9 @@ def ask(question: str, retriever):
 
     return response
 
-
 # -----------------------------
-# 7. Streamlit 실행 영역
+# 9. Buy Me A Coffee 버튼
 # -----------------------------
-uploaded_file = st.file_uploader("📂 PDF 파일을 업로드하세요", type=["pdf"])
-
-# Buy Me A Coffee 버튼
 coffee_button(
     username="rdw8304",
     text="Buy Me A Coffee",
@@ -173,6 +184,12 @@ coffee_button(
     width=220,
 )
 
+
+# -----------------------------
+# 10. Streamlit 실행 영역
+# -----------------------------
+uploaded_file = st.file_uploader("📂 PDF 파일을 업로드하세요", type=["pdf"])
+
 if uploaded_file is not None:
 
     retriever = build_retriever(uploaded_file)
@@ -183,7 +200,8 @@ if uploaded_file is not None:
 
     if question:
         with st.spinner("답변 생성 중..."):
+
             answer = ask(question, retriever)
 
-        st.write("### 📌 답변")
-        st.write(answer)
+        # st.write("### 📌 답변")
+        # st.write(answer)
